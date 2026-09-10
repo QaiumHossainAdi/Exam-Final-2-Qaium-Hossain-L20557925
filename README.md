@@ -2,6 +2,11 @@
 
 **Main deliverable:** [`Qaium_Hossain_Doctoral_Exam_Final_2.docx`](./Qaium_Hossain_Doctoral_Exam_Final_2.docx)
 
+**No-quiz term definitions:** [`Qaium_Hossain_Term_Definitions.docx`](./Qaium_Hossain_Term_Definitions.docx) —
+definitions of EDI, Purchase Price Variance, Market-based price model,
+Cost-based price model, Competitive bidding, Channel Assembly, XML, JSON,
+Drop Shipping, and Vendor Managed Inventory, submitted in place of a quiz.
+
 ## What's in the document
 
 - **Part A — LLM literature-review challenge exercise**
