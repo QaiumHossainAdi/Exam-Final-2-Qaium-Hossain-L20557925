@@ -26,4 +26,12 @@
 ```
 Qaium_Hossain_Doctoral_Exam_Final_2.docx   # graded deliverable
 skills/verified-literature-review/SKILL.md # the writing skill, as a standalone file
+homework-planning/Qaium_Hossain_Homework_Planning.docx  # Prod & Invent Control homework
 ```
+
+## Prod & Invent Control — Homework: Planning
+
+[`homework-planning/Qaium_Hossain_Homework_Planning.docx`](./homework-planning/Qaium_Hossain_Homework_Planning.docx)
+answers Part A (matching supply to demand over the medium term with aggregate
+planning), Part B (how hard 3–5-year demand forecasting is) and Part C (typical
+hiring and layoff costs, with sources).
