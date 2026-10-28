@@ -32,6 +32,21 @@ On Windows you can instead double-click `setup_castcheck.bat` once (it installs,
 and starts the app), then use `run_castcheck.bat` afterwards. Placed next to `CastCheck_AI.zip`,
 it extracts the project to `D:\Projects\castcheck` first; inside the project folder it sets up in place.
 
+### Presentation data
+
+`data/presentation/` has one SYNTHETIC 16-pour log per application (made by
+`python scripts/make_presentation_data.py`). Pick the matching **Application** in the sidebar,
+then upload the CSV in **Lab results**; Early warning and Diagnose use it too.
+
+| File | f'c | Planted cases |
+|---|---|---|
+| `bridge_deck_deicing.csv` | 5,000 | P07 water added, P11 testing problem, P14 high air, P16 early risk |
+| `road_pavement.csv` | 4,500 | P05 high air, P10 water added (pulls P12 to a low average), P13 testing problem, P16 early risk |
+| `parking_lot.csv` | 3,500 | P08-P10 drift to a low 3-test average, P13 cold curing, P16 early risk |
+| `interior_slab.csv` | 4,000 | P06 batching error, P10 cold curing, P12 testing problem, P16 early risk |
+
+P15 and P16 have 7-day breaks only (awaiting 28-day results).
+
 For the model comparison, download `Concrete_Data.xls` from
 https://archive.ics.uci.edu/dataset/165/concrete+compressive+strength into `data/`,
 then click **Train and compare models**.
