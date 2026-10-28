@@ -1,0 +1,200 @@
+# CastCheck AI configuration
+# --------------------------------------------------------------------------
+# Every code limit, table and factor the program uses lives in this file.
+# Change a value here and the app uses it on the next run; no code changes.
+# Values marked "ASSUMED" are reasonable defaults, not code requirements:
+# replace them with project, supplier or lab data before real use.
+# Always check final designs against the current code edition and the
+# project specification. The project spec governs.
+# --------------------------------------------------------------------------
+
+units_note: "Mix design runs in US units (lb, ft3, psi). Optimizer and ML run in SI (kg/m3, MPa), as in the UCI dataset."
+
+# ---------- Application presets (ACI 318-19 Table 19.3.2.1 exposure classes) ----------
+presets:
+  bridge_deck_deicing:
+    label: "Bridge deck with deicing salts"
+    exposure_classes: "F3, C2"
+    fc_psi: 5000
+    max_wcm: 0.40
+    air_entrained: true
+    air_exposure: severe
+    slump: "3-4"
+    nmsa_in: 0.75
+    max_fly_ash_frac: 0.25     # ACI 318-19 Table 26.4.2.2(b), class F3
+    max_slag_frac: 0.50
+    max_total_scm_frac: 0.50
+    min_cementitious_kg: 335   # ASSUMED, typical DOT deck minimum
+  road_pavement:
+    label: "Road pavement"
+    exposure_classes: "F2"
+    fc_psi: 4500
+    max_wcm: 0.45
+    air_entrained: true
+    air_exposure: severe
+    slump: "1-2"
+    nmsa_in: 1.5
+    max_fly_ash_frac: 0.35     # ASSUMED, F2 has no code SCM cap
+    max_slag_frac: 0.50
+    max_total_scm_frac: 0.50
+    min_cementitious_kg: 300
+  parking_lot:
+    label: "Parking lot slab"
+    exposure_classes: "F1"
+    fc_psi: 3500
+    max_wcm: 0.55
+    air_entrained: true
+    air_exposure: moderate
+    slump: "3-4"
+    nmsa_in: 1.0
+    max_fly_ash_frac: 0.35
+    max_slag_frac: 0.50
+    max_total_scm_frac: 0.50
+    min_cementitious_kg: 280
+  interior_slab:
+    label: "Interior building slab"
+    exposure_classes: "F0"
+    fc_psi: 4000
+    max_wcm: null              # no exposure limit
+    air_entrained: false
+    air_exposure: mild
+    slump: "3-4"
+    nmsa_in: 1.0
+    max_fly_ash_frac: 0.40
+    max_slag_frac: 0.60
+    max_total_scm_frac: 0.60
+    min_cementitious_kg: 280
+
+# ---------- ACI 211.1 tables ----------
+aci211:
+  nmsa_in: [0.375, 0.5, 0.75, 1.0, 1.5, 2.0]
+  # Table A1.5.3.1: mixing water, lb/yd3
+  water_non_ae:
+    "1-2": [350, 335, 315, 300, 275, 260]
+    "3-4": [385, 365, 340, 325, 300, 285]
+    "6-7": [410, 385, 360, 340, 315, 300]
+  water_ae:
+    "1-2": [305, 295, 280, 270, 250, 240]
+    "3-4": [340, 325, 305, 295, 275, 265]
+    "6-7": [365, 345, 325, 310, 290, 280]
+  entrapped_air_pct: [3.0, 2.5, 2.0, 1.5, 1.0, 0.5]
+  total_air_pct:
+    mild:     [4.5, 4.0, 3.5, 3.0, 2.5, 2.0]
+    moderate: [6.0, 5.5, 5.0, 4.5, 4.5, 4.0]
+    severe:   [7.5, 7.0, 6.0, 6.0, 5.5, 5.0]
+  # Table A1.5.3.4(a): w/c by mass vs 28-day strength (psi)
+  wc_strength_psi: [2000, 3000, 4000, 5000, 6000]
+  wc_non_ae: [0.82, 0.68, 0.57, 0.48, 0.41]
+  wc_ae_strength_psi: [2000, 3000, 4000, 5000]
+  wc_ae: [0.74, 0.59, 0.48, 0.40]
+  # Table A1.5.3.6: dry-rodded coarse aggregate volume per unit concrete volume
+  coarse_fm: [2.40, 2.60, 2.80, 3.00]
+  coarse_volume:
+    - [0.50, 0.48, 0.46, 0.44]   # 3/8 in
+    - [0.59, 0.57, 0.55, 0.53]   # 1/2 in
+    - [0.66, 0.64, 0.62, 0.60]   # 3/4 in
+    - [0.71, 0.69, 0.67, 0.65]   # 1 in
+    - [0.75, 0.73, 0.71, 0.69]   # 1-1/2 in
+    - [0.78, 0.76, 0.74, 0.72]   # 2 in
+
+# ---------- Required average strength f'cr (ACI 318-19 26.4.3 / ACI 301) ----------
+fcr:
+  # Modification factor for standard deviation when fewer than 30 tests
+  s_modifier_tests: [15, 20, 25, 30]
+  s_modifier:       [1.16, 1.08, 1.03, 1.00]
+
+# ---------- Acceptance (ACI 318-19 26.12.3 and 26.12.6) ----------
+acceptance:
+  low_strength_threshold_psi: 5000   # f'c at or below: individual limit f'c - 500
+  individual_minus_psi: 500
+  individual_fraction_high: 0.90     # f'c above threshold: individual limit 0.90 f'c
+  core_avg_fraction: 0.85
+  core_single_fraction: 0.75
+  # ASTM C39 acceptable range of individual cylinder strengths (% of average)
+  companion_range_pct:
+    "6x12_2": 8.0
+    "6x12_3": 9.5
+    "4x8_3": 10.6
+
+# ---------- Early strength (ACI 209R time-strength relation) ----------
+early_strength:
+  # f(t) = t / (a + b t) * f28, moist cured
+  cement_types:
+    "Type I":   {a: 4.0, b: 0.85}
+    "Type III": {a: 2.3, b: 0.92}
+  prediction_cv: 0.10   # ASSUMED scatter of the 7-to-28-day estimate; calibrate from your own pairs
+
+# ---------- Materials for optimizer (SI) ----------
+materials:
+  # specific gravity, cost USD/kg (ASSUMED), embodied carbon kgCO2e/kg (ASSUMED, replace with EPD data)
+  cement:           {sg: 3.15, cost: 0.15,  co2: 0.90}
+  slag:             {sg: 2.90, cost: 0.13,  co2: 0.07}
+  fly_ash:          {sg: 2.40, cost: 0.06,  co2: 0.01}
+  water:            {sg: 1.00, cost: 0.001, co2: 0.0003}
+  superplasticizer: {sg: 1.07, cost: 2.50,  co2: 0.80}
+  coarse_agg:       {sg: 2.70, cost: 0.02,  co2: 0.005}
+  fine_agg:         {sg: 2.65, cost: 0.02,  co2: 0.005}
+
+optimizer:
+  # bounds kg/m3, kept inside the UCI data range so the ML model is not extrapolating
+  bounds:
+    cement: [102, 540]
+    slag: [0, 359]
+    fly_ash: [0, 200]
+    water: [122, 247]
+    superplasticizer: [0, 32]
+    coarse_agg: [801, 1145]
+  fine_agg_range: [594, 993]
+  model_margin_k: 1.0          # strength margin = k * model RMSE, added to f'cr
+  air_strength_loss_per_pct: 0.05   # ASSUMED ~5% strength loss per 1% entrained air
+  # Workability: water may drop below the ACI 211.1 table water only with superplasticizer.
+  # Full reduction is reached at sp_full_dose_frac of binder mass. (ASSUMED values)
+  max_sp_water_reduction: 0.25
+  sp_full_dose_frac: 0.015
+  pareto_points: 7
+  seed: 42
+
+# Fallback strength model when no dataset is loaded:
+# ACI w/c table applied to w/cm with SCM efficiency factors (ASSUMED k-values)
+fallback_model:
+  k_fly_ash: 0.4
+  k_slag: 0.9
+
+# ---------- Probabilistic diagnosis (naive Bayes) ----------
+# prior: share of low-strength results due to each cause (ASSUMED)
+# likelihood: P(evidence is present | cause). Unknown evidence is skipped.
+diagnosis:
+  causes:
+    testing_problem:
+      label: "Testing problem (sampling, curing or handling of cylinders)"
+      prior: 0.35
+      next_step: "Review cylinder making, field curing and lab records. If the problem is confirmed, take cores; ACI 318 judges cores, not the suspect cylinders."
+    water_added:
+      label: "Water added on site"
+      prior: 0.25
+      next_step: "Check delivery tickets and site logs for added water. Take cores in the placement this test represents."
+    batching_error:
+      label: "Low cementitious content or batching error"
+      prior: 0.15
+      next_step: "Request batch tickets and plant records for this load; compare to the approved mix. Take cores."
+    high_air:
+      label: "Air content too high"
+      prior: 0.15
+      next_step: "Check air tests on this load and the admixture dosage. Take cores."
+    cold_curing:
+      label: "Poor curing temperature"
+      prior: 0.10
+      next_step: "Review curing records and weather. Consider in-place testing or a maturity check before cores."
+  evidence:
+    companion_range_high: {testing_problem: 0.70, water_added: 0.10, batching_error: 0.10, high_air: 0.10, cold_curing: 0.15}
+    fracture_abnormal:    {testing_problem: 0.60, water_added: 0.10, batching_error: 0.10, high_air: 0.10, cold_curing: 0.10}
+    slump_over_design:    {testing_problem: 0.15, water_added: 0.85, batching_error: 0.30, high_air: 0.25, cold_curing: 0.15}
+    air_over_spec:        {testing_problem: 0.10, water_added: 0.15, batching_error: 0.10, high_air: 0.90, cold_curing: 0.10}
+    cure_temp_out:        {testing_problem: 0.40, water_added: 0.10, batching_error: 0.10, high_air: 0.10, cold_curing: 0.85}
+    late_delivery:        {testing_problem: 0.10, water_added: 0.50, batching_error: 0.15, high_air: 0.15, cold_curing: 0.10}
+  thresholds:
+    slump_excess_in: 1.0       # ticket slump above design by more than this
+    air_excess_pct: 1.5        # measured air above spec by more than this
+    cure_temp_F: [60, 80]      # ASTM C31 initial curing range for f'c < 6000 psi
+    max_minutes: 90            # ASTM C94 discharge time
+    normal_fracture_types: [1, 2, 3]

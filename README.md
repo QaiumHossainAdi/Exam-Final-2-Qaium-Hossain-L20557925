@@ -21,9 +21,17 @@
 - **Part C** — complete-sentence answers to the three lecture questions.
 - **Part D** — the 20-question key-at-end quiz, reproduced with answers.
 
+## CastCheck AI
+
+[`castcheck/`](./castcheck/) holds the source of **CastCheck AI**
+(https://castcheck-ai.streamlit.app/), a Streamlit app for concrete mix design (ACI 211.1),
+cost/carbon optimization, ACI 318 acceptance, early-strength warning and low-test diagnosis.
+See [`castcheck/README.md`](./castcheck/README.md) to run it.
+
 ## Repo structure
 
 ```
 Qaium_Hossain_Doctoral_Exam_Final_2.docx   # graded deliverable
 skills/verified-literature-review/SKILL.md # the writing skill, as a standalone file
+castcheck/                                 # CastCheck AI Streamlit app
 ```
