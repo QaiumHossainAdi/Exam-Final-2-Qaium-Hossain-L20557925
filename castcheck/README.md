@@ -28,7 +28,9 @@ python scripts/make_demo_pours.py   # synthetic demo pour log (already included)
 streamlit run app.py
 ```
 
-On Windows you can instead double-click `setup_castcheck.bat` once, then `run_castcheck.bat`.
+On Windows you can instead double-click `setup_castcheck.bat` once (it installs, runs the tests
+and starts the app), then use `run_castcheck.bat` afterwards. Placed next to `CastCheck_AI.zip`,
+it extracts the project to `D:\Projects\castcheck` first; inside the project folder it sets up in place.
 
 For the model comparison, download `Concrete_Data.xls` from
 https://archive.ics.uci.edu/dataset/165/concrete+compressive+strength into `data/`,
