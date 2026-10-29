@@ -20,7 +20,7 @@ SCENARIOS = {
         problems={6: "water_added", 10: "testing_problem", 13: "high_air", 15: "early_risk"}),
     "road_pavement": dict(
         fc=4500, mean=5650, sd=420, slump=1.5, air=5.5, cure=74, start="2026-05-04", every=4,
-        locations=[f"Lane {1 + (i // 8)}, Sta {10 + i % 8}+00" for i in range(16)],
+        locations=[f"Section {1 + i // 4}" for i in range(16)],
         problems={4: "high_air", 9: "water_added", 12: "testing_problem", 15: "early_risk"}),
     "parking_lot": dict(
         fc=3500, mean=4650, sd=360, slump=4.0, air=4.5, cure=70, start="2026-04-06", every=5,
@@ -28,7 +28,7 @@ SCENARIOS = {
         problems={7: "low_average", 8: "low_average", 9: "low_average", 12: "cold_curing", 15: "early_risk"}),
     "interior_slab": dict(
         fc=4000, mean=5150, sd=400, slump=4.0, air=None, cure=68, start="2025-11-03", every=6,
-        locations=[f"Level {1 + i // 6}, Grid {'ABCDEF'[i % 6]}-{'BCDEFG'[i % 6]}" for i in range(16)],
+        locations=[f"Level {1 + i // 6}" for i in range(16)],
         problems={5: "batching_error", 9: "cold_curing", 11: "testing_problem", 15: "early_risk"}),
 }
 
