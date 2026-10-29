@@ -125,13 +125,68 @@ def pour_table(df):
                      "range_limit_pct": t28["range_limit_pct"], "test_7d": t7["strength"]})
     return pd.DataFrame(rows)
 
+POUR_COLUMNS = {
+    "pour_id": st.column_config.TextColumn("Pour ID", help="Unique name, e.g. P01", required=True),
+    "date": st.column_config.TextColumn("Date", help="YYYY-MM-DD"),
+    "location": st.column_config.TextColumn("Location", help="Group name, e.g. Deck span 1"),
+    "fc_psi": st.column_config.NumberColumn("f'c (psi)", min_value=1000, max_value=15000, step=50, required=True),
+    "cyl1_7d": st.column_config.NumberColumn("Cyl 1, 7-day (psi)", min_value=0, step=10),
+    "cyl2_7d": st.column_config.NumberColumn("Cyl 2, 7-day (psi)", min_value=0, step=10),
+    "cyl1_28d": st.column_config.NumberColumn("Cyl 1, 28-day (psi)", min_value=0, step=10, help="Leave empty if not tested yet"),
+    "cyl2_28d": st.column_config.NumberColumn("Cyl 2, 28-day (psi)", min_value=0, step=10, help="Leave empty if not tested yet"),
+    "fracture_type": st.column_config.NumberColumn("Fracture type (1-6)", min_value=1, max_value=6, step=1, help="ASTM C39 fracture pattern"),
+    "slump_design_in": st.column_config.NumberColumn("Design slump (in)", min_value=0.0, max_value=10.0, step=0.5),
+    "slump_ticket_in": st.column_config.NumberColumn("Measured slump (in)", min_value=0.0, max_value=12.0, step=0.1),
+    "air_spec_pct": st.column_config.NumberColumn("Specified air (%)", min_value=0.0, max_value=12.0, step=0.1),
+    "air_ticket_pct": st.column_config.NumberColumn("Measured air (%)", min_value=0.0, max_value=15.0, step=0.1),
+    "cure_temp_F": st.column_config.NumberColumn("Initial curing temp (F)", min_value=0, max_value=120, step=1),
+    "minutes_batch_to_place": st.column_config.NumberColumn("Batch to placement (min)", min_value=0, max_value=300, step=1),
+}
+PRESENTATION = ROOT / "data" / "presentation"
+
+
+def enter_pours():
+    """Editable pour log: start blank or from a sample file, then type or paste rows."""
+    starts = {"Blank table": None, "Demo pour log": ROOT / "data" / "demo_pours.csv",
+              **{f"Sample: {f.stem.replace('_', ' ')}": f for f in sorted(PRESENTATION.glob("*.csv"))}}
+    start = st.selectbox("Start from", list(starts), help="Changing this replaces the table below.")
+    if starts[start] is None:
+        base = pd.DataFrame([{"pour_id": "P01", "fc_psi": float(p["fc_psi"])}], columns=list(POUR_COLUMNS))
+    else:
+        base = pd.read_csv(starts[start])
+    base = base.reindex(columns=list(POUR_COLUMNS))
+    for c in POUR_COLUMNS:
+        if c not in ("pour_id", "date", "location"):
+            base[c] = pd.to_numeric(base[c], errors="coerce")
+        else:
+            base[c] = base[c].astype("string")
+    st.caption("Type or paste (Ctrl+V from Excel) one row per pour. Add rows with the + at the bottom; "
+               "select rows and press Delete to remove them. Empty 28-day cells mean the test is still pending.")
+    edited = st.data_editor(base, column_config=POUR_COLUMNS, num_rows="dynamic", hide_index=True,
+                            use_container_width=True, key=f"pour_editor_{start}")
+    edited = edited.dropna(subset=["pour_id", "fc_psi"])
+    edited = edited[edited["pour_id"].str.strip() != ""]
+    st.download_button("Download this table as CSV", edited.to_csv(index=False), "my_pour_log.csv", "text/csv",
+                       help="Save your entries; upload the file later to continue.")
+    return edited.reset_index(drop=True)
+
+
 with tabs[2]:
     st.subheader("Lab results and ACI 318 acceptance")
-    up = st.file_uploader("Pour log CSV (same columns as data/demo_pours.csv)", type="csv")
-    src = up if up is not None else ROOT / "data" / "demo_pours.csv"
-    if up is None:
-        st.caption("Showing the SYNTHETIC demo pour log. Upload your own CSV to replace it.")
-    pours = pour_table(load_pours(src))
+    source = st.radio("Pour data", ["Demo data", "Upload a CSV", "Enter data myself"], horizontal=True)
+    if source == "Enter data myself":
+        raw = enter_pours()
+        if raw.empty:
+            st.info("Add at least one pour with a Pour ID and f'c to see results.")
+            st.stop()
+    else:
+        up = st.file_uploader("Pour log CSV (same columns as data/demo_pours.csv)", type="csv") if source == "Upload a CSV" else None
+        if source == "Upload a CSV" and up is None:
+            st.info("Choose a CSV file. Until then the demo pour log is shown.")
+        if up is None:
+            st.caption("Showing the SYNTHETIC demo pour log.")
+        raw = load_pours(up if up is not None else ROOT / "data" / "demo_pours.csv")
+    pours = pour_table(raw)
     st.session_state.pours = pours
     done = pours.dropna(subset=["test_28d"])
     fc = float(done["fc_psi"].iloc[0]) if len(done) else p["fc_psi"]
@@ -140,8 +195,11 @@ with tabs[2]:
     def color(v):
         return {"Accept": "background-color: #d9f2e3", "Low average": "background-color: #fff1c2",
                 "Investigate (cores)": "background-color: #f9d6d5"}.get(v, "")
-    st.dataframe(res.style.map(color, subset=["verdict"]), hide_index=True, use_container_width=True)
-    st.caption(f"f'c = {fc:,.0f} psi. Each test is the average of two 6x12 cylinders at 28 days.")
+    if res.empty:
+        st.info("No 28-day results yet. Acceptance appears once 28-day cylinder strengths are entered.")
+    else:
+        st.dataframe(res.style.map(color, subset=["verdict"]), hide_index=True, use_container_width=True)
+        st.caption(f"f'c = {fc:,.0f} psi. Each test is the average of two 6x12 cylinders at 28 days.")
 
 # ---------------- 4. Early warning ----------------
 with tabs[3]:
@@ -157,9 +215,12 @@ with tabs[3]:
                      "actual 28-day (psi)": None if pd.isna(r["test_28d"]) else round(r["test_28d"]),
                      "P(below f'c)": fp["p_below_fc"], "P(below individual limit)": fp["p_below_individual_limit"]})
     ew = pd.DataFrame(rows)
-    st.dataframe(ew.style.format({"P(below f'c)": "{:.0%}", "P(below individual limit)": "{:.0%}"})
-                 .background_gradient(subset=["P(below individual limit)"], cmap="Reds", vmin=0, vmax=1),
-                 hide_index=True, use_container_width=True)
+    if ew.empty:
+        st.info("No 7-day results yet.")
+    else:
+        st.dataframe(ew.style.format({"P(below f'c)": "{:.0%}", "P(below individual limit)": "{:.0%}"})
+                     .background_gradient(subset=["P(below individual limit)"], cmap="Reds", vmin=0, vmax=1),
+                     hide_index=True, use_container_width=True)
     st.caption("ACI 209R time-strength relation. The scatter (CV) is an assumption until calibrated with your own 7/28-day pairs.")
 
 # ---------------- 5. Diagnose ----------------

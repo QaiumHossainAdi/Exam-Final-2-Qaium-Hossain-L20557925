@@ -32,6 +32,16 @@ On Windows you can instead double-click `setup_castcheck.bat` once (it installs,
 and starts the app), then use `run_castcheck.bat` afterwards. Placed next to `CastCheck_AI.zip`,
 it extracts the project to `D:\Projects\castcheck` first; inside the project folder it sets up in place.
 
+### Your own pour data
+
+In **Lab results**, choose how to supply the pour log:
+
+- **Upload a CSV**: same columns as `data/pour_log_template.csv` (fill it in Excel, then *Save As → CSV*).
+- **Enter data myself**: type or paste rows into the table (start blank or from a sample), add or delete
+  rows, then **Download this table as CSV** to keep your entries and upload them next time.
+
+Early warning and Diagnose use the same data. Leave 28-day cells empty for pours not tested yet.
+
 ### Presentation data
 
 `data/presentation/` has one SYNTHETIC 16-pour log per application (made by
