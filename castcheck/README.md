@@ -57,6 +57,11 @@ then upload the CSV in **Lab results**; Early warning and Diagnose use it too.
 
 P15 and P16 have 7-day breaks only (awaiting 28-day results).
 
+Matching batch tickets (`<file>_batches.csv`, made by `python scripts/make_presentation_batches.py`) can be
+uploaded on the live dashboard's **Batch Deviation Check** page. Water-added pours carry 25 gal of site water,
+batching-error and early-risk pours are short on cement, high-air pours have an overdosed admixture, and
+testing-problem and cold-curing pours have clean tickets.
+
 For the model comparison, download `Concrete_Data.xls` from
 https://archive.ics.uci.edu/dataset/165/concrete+compressive+strength into `data/`,
 then click **Train and compare models**.
